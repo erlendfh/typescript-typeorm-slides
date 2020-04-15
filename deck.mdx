@@ -7,93 +7,295 @@ import { github, vsDark } from "@code-surfer/themes";
 
 export const theme = vsDark;
 
-# Hello 👋
+# Typescript + Express Stack
 
-You are using [MDX Deck](https://github.com/jxnblk/mdx-deck) and [Code Surfer](https://codesurfer.pomb.us)
+Basert på [express-typescript-boilerplate](https://github.com/w3tecch/express-typescript-boilerplate)
 
 ---
 
 <CodeSurfer>
 
-```js title="This is a title" subtitle="and this a subtitle"
-function lorem(ipsum, dolor = 1) {
-  const sit = ipsum == null ? 0 : ipsum.sit;
-  dolor = sit - amet(dolor);
-  return sit
-    ? consectetur(ipsum, 0, dolor < 0 ? 0 : dolor)
-    : [];
-}
+```bash title="Struktur"
+  /src
+    /api
+    /auth
+    /database
+    /public
+```
 
-function incididunt(ipsum, ut = 1) {
-  ut = labore.et(amet(ut), 0);
-  const sit = ipsum == null ? 0 : ipsum.sit;
+```typescript title="Struktur"
+  /src
+    /database
+      /factories
+      /migrations
+      /seeds
+```
 
-  if (!sit || ut < 1) {
-    return [];
-  }
+```typescript title="Struktur"
+  /src
+    /api
+      /controllers
+      /errors
+      /models
+      /services
+```
 
-  let dolore = 0;
-  let magna = 0;
-  const aliqua = new eiusmod(labore.ut(sit / ut));
+</CodeSurfer>
 
-  while (dolore < sit) {
-    aliqua[magna++] = consectetur(
-      ipsum,
-      dolore,
-      (dolore += ut)
-    );
-  }
+---
 
-  return aliqua;
+<CodeSurfer>
+
+```typescript title="Controller"
+// src/api/controllers/UserController.ts
+export class UserController {
 }
 ```
 
-```js
-function lorem(ipsum, dolor = 1) {
-  const sit = ipsum == null ? 0 : ipsum.sit;
-  dolor = sit - amet(dolor);
-  return sit
-    ? consectetur(ipsum, 0, dolor < 0 ? 0 : dolor)
-    : [];
-}
+```typescript title="Controller"
+// src/api/controllers/UserController.ts
+import {
+  JsonController,
+} from 'routing-controllers';
 
-function adipiscing(...elit) {
-  if (!elit.sit) {
-    return [];
-  }
-
-  const sed = elit[0];
-  return eiusmod.tempor(sed) ? sed : [sed];
-}
-
-function incididunt(ipsum, ut = 1) {
-  ut = labore.et(amet(ut), 0);
-  const sit = ipsum == null ? 0 : ipsum.sit;
-
-  if (!sit || ut < 1) {
-    return [];
-  }
-
-  let dolore = 0;
-  let magna = 0;
-  const aliqua = new eiusmod(labore.ut(sit / ut));
-
-  while (dolore < sit) {
-    aliqua[magna++] = consectetur(
-      ipsum,
-      dolore,
-      (dolore += ut)
-    );
-  }
-
-  return aliqua;
+@JsonController('/users')
+export class UserController {
 }
 ```
 
-```diff 1[10:14],2[15:19],3[22:27],10:12
+```typescript title="Controller"
+// src/api/controllers/UserController.ts
+import {
+  Authorized,
+  JsonController,
+} from 'routing-controllers';
 
+@Authorized()
+@JsonController('/users')
+export class UserController {
+}
 ```
 
+```typescript title="Controller"
+// src/api/controllers/UserController.ts
+@Authorized()
+@JsonController('/users')
+export class UserController {
+  public async one(
+  ) {
+  }
+}
+```
+
+```typescript title="Controller"
+// src/api/controllers/UserController.ts
+import {
+  Get,
+  Param,
+} from 'routing-controllers';
+
+@Authorized()
+@JsonController('/users')
+export class UserController {
+  @Get('/:id')
+  public async one(
+    @Param('id') id: string
+  ) {
+  }
+}
+```
+
+```typescript title="Controller"
+// src/api/controllers/UserController.ts
+@Authorized()
+@JsonController('/users')
+export class UserController {
+  @Get('/:id')
+  public async one(
+    @Param('id') id: string
+  ) {
+    const user = await this.userService.findByUsername(id);
+    return user;
+  }
+}
+```
+
+```typescript title="Controller"
+// src/api/controllers/UserController.ts
+@Authorized()
+@JsonController('/users')
+export class UserController {
+  private userService;
+  constructor(userService: UserService) {
+    this.userService = userService;
+  }
+
+  @Get('/:id')
+  public async one(
+    @Param('id') id: string
+  ) {
+    const user = await this.userService.findByUsername(id);
+    return user;
+  }
+}
+```
+
+```typescript title="Controller"
+// src/api/controllers/UserController.ts
+@Authorized()
+@JsonController('/users')
+export class UserController {
+  constructor(private userService: UserService) {}
+
+  @Get('/:id')
+  public async one(
+    @Param('id') id: string
+  ) {
+    const user = await this.userService.findByUsername(id);
+    return user;
+  }
+}
+```
+</CodeSurfer>
+
+---
+
+<CodeSurfer>
+
+```typescript title="Service" 
+export class UserService {
+}
+```
+
+```typescript title="Service" 
+import {Service} from 'typedi';
+
+@Service()
+export class UserService {
+}
+```
+
+```typescript title="Service" 
+import {OrmManager} from 'typeorm-typedi-extensions';
+
+@Service()
+export class UserService {
+  constructor(
+        @OrmManager() private manager: EntityManager,
+  ) {}
+}
+```
+
+```typescript title="Service" 
+
+@Service()
+export class UserService {
+  constructor(
+        @OrmManager() private manager: EntityManager,
+  ) {}
+
+  public findByUsername(username: string) {
+    return this.manager.findOne(User, {username: username});
+  }
+}
+```
+</CodeSurfer>
+
+---
+
+<CodeSurfer>
+
+```typescript title="EntityManager" 
+class EntityManager {
+  find(entityClass, conditions): Promise<Entity[]>;
+
+  findOne(entityClass, conditions): Promise<Entity>;
+
+  save(entity): Promise<Entity>;
+
+  delete(entity): Promise;
+}
+```
+
+```typescript title="EntityManager" 
+
+this.manager.find(User, {
+  where: {
+    firstName: 'foo',
+    lastName: 'bar',
+  }, 
+  order: {
+    lastName: 'ASC',
+    firstName: 'ASC',
+  }
+})
+```
+
+
+</CodeSurfer>
+
+---
+
+<CodeSurfer>
+
+```typescript title="Model"
+
+export class User {
+  public id: number;
+
+  public username: string;
+
+  public password: string;
+
+  public fullName: string;
+}
+```
+
+```typescript title="Model"
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+
+@Entity({name: 'tblUsers'})
+export class User {
+  @PrimaryGeneratedColumn()
+  public id: number;
+
+  @Column()
+  public username: string;
+
+  @Column()
+  public password: string;
+
+  @Column({name: 'full_name'})
+  public fullName: string;
+}
+```
+
+```typescript title="Model"
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  OneToMany,
+} from 'typeorm';
+
+@Entity({name: 'tblUsers'})
+export class User {
+  ...
+  
+  @OneToMany(() => OAuthAccessToken, (token) => token.user)
+  public accessTokens: OAuthAccessToken[];
+}
+```
+
+```diff 12[14:35] title="Model" subtitle="Reverse type"
+```
+
+```diff 12[38:58] title="Model" subtitle="Reverse relationship"
+```
 </CodeSurfer>
 
 ---
@@ -102,49 +304,307 @@ function incididunt(ipsum, ut = 1) {
 
 <Step>
 
-```js
-const magna = aliqua => aliqua.ut((enim, ad) => enim, 0);
+```typescript
+@Entity({name: 'tblUsers'})
+export class User {
+  ...
+  
+  @OneToMany(() => OAuthAccessToken, (token) => token.user)
+  public accessTokens: OAuthAccessToken[];
+}
 ```
 
-```js
-const minim = (ad, enim) => dolore.magna(ad / enim);
+```typescript
 ```
 
 </Step>
 
 <Step>
 
-```js
-const lorem = (ipsum, dolor, sit) => {
-  const amet = dolor - ipsum;
-  return consectetur.adipiscing(
-    {
-      elit: sed.eiusmod(sit - dolor) / amet + 2,
-    },
-    (tempor, incididunt) => ipsum + amet * incididunt
-  );
-};
-
-const magna = aliqua => aliqua.ut((enim, ad) => enim, 0);
+```typescript
+@Entity({name: 'tblUsers'})
+export class User {
+  ...
+  
+  @OneToMany(() => OAuthAccessToken, (token) => token.user)
+  public accessTokens: OAuthAccessToken[];
+}
 ```
 
-```js
-const minim = (ad, enim) => dolore.magna(ad / enim);
+```typescript
+@Entity()
+export class OAuthAccessToken {
+  ...
+}
+```
 
-const sed = (eiusmod, tempor, incididunt) => {
-  const ut = tempor - eiusmod;
-  return labore.et(
-    {
-      amet: dolore.magna(incididunt - tempor) / ut + 2,
-    },
-    (aliqua, elit) => eiusmod + ut * elit
-  );
-};
+</Step>
+
+<Step>
+
+```typescript
+@Entity({name: 'tblUsers'})
+export class User {
+  ...
+  
+  @OneToMany(() => OAuthAccessToken, (token) => token.user)
+  public accessTokens: OAuthAccessToken[];
+}
+```
+
+```typescript
+@Entity()
+export class OAuthAccessToken {
+  ...
+  
+  @ManyToOne(() => User, (user) => user.accessTokens)
+  public user: User;
+}
 ```
 
 </Step>
 
 </CodeSurferColumns>
+
+---
+
+<CodeSurfer>
+
+```typescript title="Autentisert bruker"
+class UserController {
+  @Get("/me")
+  getMyProfile(
+  ) {
+    ...
+  }
+}
+```
+
+```typescript title="Autentisert bruker"
+import
+  CurrentUser,
+} from 'routing-controllers';
+
+class UserController {
+  @Get("/me")
+  getMyProfile(
+    @CurrentUser() user: User
+  ) {
+    ...
+  }
+}
+```
+
+</CodeSurfer>
+
+---
+
+<CodeSurfer>
+
+```typescript title="URL-parametere"
+import {
+  Param,
+} from 'routing-controllers';
+
+class UserController {
+  @Get("/:id")
+  getUser(@Param("id") id: number) {
+    // GET /api/users/123
+    ...
+  }
+}
+```
+
+```typescript title="URL-parametere"
+import {
+  QueryParam,
+} from 'routing-controllers';
+
+class UserController {
+  @Get()
+  listUsers(@QueryParam("limit") limit: number) {
+    // GET /api/users?limit=5
+    ...
+  }
+}
+```
+
+</CodeSurfer>
+
+---
+
+<CodeSurfer>
+
+
+```typescript title="Request Body"
+import {
+  Post,
+} from 'routing-controllers';
+
+@Post("/:id")
+updateUser(
+  @Param("id") id: number,
+) {
+  ...
+}
+```
+
+
+```typescript title="Request Body"
+import {
+  Post,
+  Body,
+} from 'routing-controllers';
+
+class CreateUserBody {
+  public username: string; 
+  public password: string; 
+}
+
+@Post("/:id")
+updateUser(
+  @Param("id") id: number,
+  @Body() newUser: CreateUserBody,
+) {
+  ...
+}
+```
+
+```typescript title="Response Schema"
+class CreateUserResponse {
+  public id: number; 
+  public username: string; 
+}
+
+class CreateUserBody {
+}
+
+@Post("/:id")
+@ResponseSchema(CreateUserResponse)
+updateUser(
+  @Param("id") id: number,
+  @Body() newUser: CreateUserBody,
+) {
+  ...
+}
+```
+
+</CodeSurfer>
+
+---
+
+<CodeSurfer>
+
+```typescript title="Validering"
+class CreateUserBody {
+  public username: string; 
+  public password: string; 
+}
+
+@Post("/:id")
+updateUser(
+  @Param("id") id: number,
+  @Body() newUser: CreateUserBody,
+) {
+  ...
+}
+```
+
+```typescript title="Validering"
+import {
+  IsNotEmpty‚
+  IsEmail,
+  Length,
+} from 'class-validator';
+
+class CreateUserBody {
+  @IsNotEmpty()
+  @IsEmail()
+  public username: string; 
+  
+  @IsNotEmpty()
+  @Length(8, 20)
+  public password: string; 
+}
+
+@Post("/:id")
+updateUser(
+  @Param("id") id: number,
+  @Body() newUser: CreateUserBody,
+) {
+  ...
+}
+```
+</CodeSurfer>
+
+---
+
+<CodeSurfer>
+
+```typescript title="Logging"
+@Service()
+export class UserService {
+  constructor(
+        @OrmManager() private manager: EntityManager,
+  ) {}
+
+  public async create(user: User) {
+    ...
+  }
+}
+```
+
+```typescript title="Logging"
+@Service()
+export class UserService {
+  constructor(
+        @OrmManager() private manager: EntityManager,
+        @Logger(__filename) private log: LoggerInterface,
+  ) {}
+
+  public async create(user: User) {
+    this.log.info('Creating user', user.username);
+    ...
+  }
+}
+```
+
+</CodeSurfer>
+
+---
+
+# Kommer:
+
+- GraphQL
+- Events
+- Testing med Jest
+
+---
+
+<CodeSurfer>
+
+```js title="GraphQL"
+```
+
+</CodeSurfer>
+
+---
+
+<CodeSurfer>
+
+```js title="Events"
+```
+
+</CodeSurfer>
+
+---
+
+<CodeSurfer>
+
+```js title="Unit-testing med Jest"
+```
+
+</CodeSurfer>
 
 ---
 
