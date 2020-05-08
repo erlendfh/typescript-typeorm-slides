@@ -3,13 +3,60 @@ import {
   CodeSurferColumns,
   Step,
 } from "code-surfer";
-import { github, vsDark } from "@code-surfer/themes";
+import { github, vsDark, duotoneLight } from "@code-surfer/themes";
+import * as themes from "@code-surfer/themes";
 
-export const theme = vsDark;
+export const theme = github;
 
 # Typescript + Express Stack
 
 Basert på [express-typescript-boilerplate](https://github.com/w3tecch/express-typescript-boilerplate)
+
+- [ExpressJS](https://github.com/expressjs/express) - applikasjonsserver
+- [TypeORM](https://github.com/typeorm/typeorm) - datamodellering
+- [routing-controllers](https://github.com/typestack/routing-controllers) - http-rammeverk
+- [typedi](https://github.com/typestack/typedi) - dependency injection
+- ++
+
+
+||
+|---|:---:|:---:|:---:|
+||<img width="200" src="https://raw.githubusercontent.com/typeorm/typeorm/HEAD/resources/logo_big.png" /> | <img width="200" src="https://www.sohamkamani.com/static/65137ed3c844d05124dcfdab28263c21/3934c/express-routing-logo.webp" /> | <img width="200" src="http://pluspng.com/img-png/nodejs-logo-vector-png-node-js-logo-nodejs-javascript-source-code-960.png" /> |
+
+
+---
+# Hvorfor Typescript?
+
+- Samme språk på frontend og backend gir muligheter for gjenbruk av kode og jevnere fordeling av kompetanse i teamet
+- Sterk typing gir tryggere kode og god verktøystøtte
+- Javascript og Typescript [dominerer](https://insights.stackoverflow.com/survey/2019#most-loved-dreaded-and-wanted) [listene](https://insights.stackoverflow.com/survey/2019#most-popular-technologies) over [populære språk](http://www.benfrederickson.com/ranking-programming-languages-by-github-users/)
+
+---
+
+# TypeORM
+
+- Abstraksjonslag som oversetter mellom javascript-objekter og databaseentiter
+- Kjører både på node.js og React Native
+- Inspirert av [Hibernate](http://hibernate.org/orm/) og [Doctrine](http://www.doctrine-project.org/)
+- Utstrakt bruk av @Annotations
+- Solid Typescript-støtte
+
+---
+
+# routing-controllers
+
+- REST-rammeverk
+- Utstrakt bruk av @Annotations
+- Solid Typescript-støtte
+
+---
+
+# typedi
+
+- Rammeverk for dependency injection
+- Løsriver applikasjonskomponentene fra hverandre og gjør de enklere å teste
+- Utstrakt bruk av @Annotations
+- Solid Typescript-støtte
 
 ---
 
@@ -66,19 +113,9 @@ export class UserController {
 ```typescript title="Controller"
 // src/api/controllers/UserController.ts
 import {
-  Authorized,
   JsonController,
 } from 'routing-controllers';
 
-@Authorized()
-@JsonController('/users')
-export class UserController {
-}
-```
-
-```typescript title="Controller"
-// src/api/controllers/UserController.ts
-@Authorized()
 @JsonController('/users')
 export class UserController {
   public async one(
@@ -90,11 +127,11 @@ export class UserController {
 ```typescript title="Controller"
 // src/api/controllers/UserController.ts
 import {
+  JsonController,
   Get,
   Param,
 } from 'routing-controllers';
 
-@Authorized()
 @JsonController('/users')
 export class UserController {
   @Get('/:id')
@@ -107,7 +144,6 @@ export class UserController {
 
 ```typescript title="Controller"
 // src/api/controllers/UserController.ts
-@Authorized()
 @JsonController('/users')
 export class UserController {
   @Get('/:id')
@@ -122,27 +158,6 @@ export class UserController {
 
 ```typescript title="Controller"
 // src/api/controllers/UserController.ts
-@Authorized()
-@JsonController('/users')
-export class UserController {
-  private userService;
-  constructor(userService: UserService) {
-    this.userService = userService;
-  }
-
-  @Get('/:id')
-  public async one(
-    @Param('id') id: string
-  ) {
-    const user = await this.userService.findByUsername(id);
-    return user;
-  }
-}
-```
-
-```typescript title="Controller"
-// src/api/controllers/UserController.ts
-@Authorized()
 @JsonController('/users')
 export class UserController {
   constructor(private userService: UserService) {}
@@ -156,6 +171,7 @@ export class UserController {
   }
 }
 ```
+
 </CodeSurfer>
 
 ---
@@ -195,7 +211,11 @@ export class UserService {
   ) {}
 
   public findByUsername(username: string) {
-    return this.manager.findOne(User, {username: username});
+    return this.manager.findOne(User, {
+      where: {
+        username: username,
+      }
+    });
   }
 }
 ```
@@ -238,7 +258,7 @@ this.manager.find(User, {
 
 <CodeSurfer>
 
-```typescript title="Model"
+```typescript title="Modell"
 
 export class User {
   public id: number;
@@ -251,7 +271,7 @@ export class User {
 }
 ```
 
-```typescript title="Model"
+```typescript title="Modell"
 import {
   Column,
   Entity,
@@ -274,7 +294,7 @@ export class User {
 }
 ```
 
-```typescript title="Model"
+```typescript title="En-til-mange-relasjon"
 import {
   Column,
   Entity,
@@ -291,20 +311,20 @@ export class User {
 }
 ```
 
-```diff 12[14:35] title="Model" subtitle="Reverse type"
+```diff 12[14:35] title="En-til-mange-relasjon" subtitle="Reverse type"
 ```
 
-```diff 12[38:58] title="Model" subtitle="Reverse relationship"
+```diff 12[38:58] title="En-til-mange-relasjon" subtitle="Reverse relationship"
 ```
 </CodeSurfer>
 
 ---
 
-<CodeSurferColumns themes={[vsDark, github]}>
+<CodeSurferColumns themes={[github, vsDark]}>
 
 <Step>
 
-```typescript
+```typescript title="En-til-mange-relasjon"
 @Entity({name: 'tblUsers'})
 export class User {
   ...
@@ -314,27 +334,12 @@ export class User {
 }
 ```
 
-```typescript
-```
-
-</Step>
-
-<Step>
-
-```typescript
-@Entity({name: 'tblUsers'})
-export class User {
-  ...
-  
-  @OneToMany(() => OAuthAccessToken, (token) => token.user)
-  public accessTokens: OAuthAccessToken[];
-}
-```
-
-```typescript
+```typescript 4 
 @Entity()
 export class OAuthAccessToken {
   ...
+  
+  public user: User;
 }
 ```
 
@@ -342,7 +347,7 @@ export class OAuthAccessToken {
 
 <Step>
 
-```typescript
+```typescript title="En-til-mange-relasjon"
 @Entity({name: 'tblUsers'})
 export class User {
   ...
@@ -352,7 +357,7 @@ export class User {
 }
 ```
 
-```typescript
+```typescript title="Mange-til-en-relasjon"
 @Entity()
 export class OAuthAccessToken {
   ...
@@ -364,13 +369,34 @@ export class OAuthAccessToken {
 
 </Step>
 
+<Step>
+
+```typescript title="Modell"
+@Entity({name: 'tblUsers'})
+export class User {
+  ...
+  
+  @OneToMany(() => OAuthAccessToken, (token) => token.user)
+  public accessTokens: OAuthAccessToken[];
+}
+```
+
+```typescript 2 title="Spørring" 
+this.manager.findOne(User, {
+  relationships: ["accessTokens"],
+  where: {
+    username: username,
+  });
+}
+```
+</Step>
 </CodeSurferColumns>
 
 ---
 
 <CodeSurfer>
 
-```typescript title="Autentisert bruker"
+```typescript title="Autentisering"
 class UserController {
   @Get("/me")
   getMyProfile(
@@ -380,18 +406,33 @@ class UserController {
 }
 ```
 
-```typescript title="Autentisert bruker"
-import
+```typescript title="Autentisering"
+import {
+  Authorized,
   CurrentUser,
 } from 'routing-controllers';
 
 class UserController {
   @Get("/me")
+  @Authorized()
   getMyProfile(
     @CurrentUser() user: User
   ) {
     ...
   }
+}
+```
+
+```typescript title="Autentisering"
+import {
+  Authorized,
+  CurrentUser,
+} from 'routing-controllers';
+import Role from '../../auth/Role';
+
+@Authorized(Role.ADMIN)
+class AdminController {
+  ...
 }
 ```
 
@@ -401,7 +442,7 @@ class UserController {
 
 <CodeSurfer>
 
-```typescript title="URL-parametere"
+```typescript 2[3:7],7[11:33] title="URL-parametere"
 import {
   Param,
 } from 'routing-controllers';
